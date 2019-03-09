@@ -17,10 +17,10 @@ Please note that at lower values for tree search depth (num_nodes_generated) the
 percentage is highly inaccurate (1-100).  At higher values (100+) it starts performing very well.
 """
 
-p1 = Player.Player("X", "red", 75)
-p2 = Player.Player("O", "yellow", 50)
+p1 = Player.Player("O", "red", 1000)
+p2 = Player.Player("O", "yellow", 2000)
 best_move_dict = {}  # board: (move, est_win_percentage)
-TARGET_NUM_GAMES = 20 # Number of games to play
+TARGET_NUM_GAMES = 10 # Number of games to play
 
 
 def make_move(player, node, board):
@@ -32,7 +32,7 @@ def make_move(player, node, board):
     :return: None
     """
     win_value = 1.0
-    draw_value = 0.1
+    draw_value = 0.01
     loss_value = 0.0
 
     the_player = player
@@ -98,7 +98,7 @@ def main():
         print("GAME {current} of {total}".format(current=num_games_played+1, total=TARGET_NUM_GAMES))
         print("-" * 60)
 
-        current_player = None
+        current_player = p1 if random.randrange(1, 3) == 1 else p2
         board = GameBoard.GameBoard()
         final_tree = MonteCarloTree.MonteCarloTree(None, None, None)
         est_win_percent = 0
@@ -111,7 +111,7 @@ def main():
             print("Player {symbol}:     ".format(symbol=current_player.get_symbol()), end='')
 
             # If the previous player has < 50% chance of winning, stick with known methods
-            if est_win_percent < 50 and str(board.board) in best_move_dict.keys():
+            if str(board.board) in best_move_dict.keys() and best_move_dict.get(str(board.board))[1] >= 50:
                 best_move, est_win_percent = best_move_dict.get(str(board.board))
                 print("Best move: {move}        Est. Win Chance: {ewc}%     *PREVIOUS STATE FOUND".format(move=best_move, ewc=current_player.color_percentage(est_win_percent)))
             else:
