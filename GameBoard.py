@@ -1,15 +1,15 @@
-'''
+"""
 Author: Ryan Kildea
 Date created: 02/14/19
-Last modified: 02/14/19
-'''
+Last modified: 03/09/19
+"""
 
 class GameBoard:
-    '''
+    """
     Defines a standard Connect Four board with nxm columns and rows.
     Allows for pieces to be placed and checks the current state of the board to see
     if a winner has been found.
-    '''
+    """
     def __init__(self):
 
         # The actual columns and rows to be displayed and played with
@@ -25,6 +25,7 @@ class GameBoard:
         self.total_columns = self.num_playable_columns + 2 * self.array_offset
         self.total_rows = self.num_playable_rows + 2 * self.array_offset
 
+        self.board_empty = True
         self.board_full = False
         self.game_over = False
         self.turns = 0  # Once turns = 42, game over
@@ -43,15 +44,33 @@ class GameBoard:
             for col in range(self.playable_column_range[0], self.playable_column_range[1]):
                 print("[{piece}]".format(piece=self.board[row][col]), end=" ")
             print('\n', end="")
+        print("\n")
+
+    def get_inverse_board(self, symbol1, symbol2):
+        """
+        When tracking visited states, a state with one arragement of Xs and Os is exactly the same as
+        that same arrangement where the Os and Xs are swapped.  This function is to account for that.
+        :param symbol1: Player 1's game piece character
+        :param symbol2: Player 2's game piece character
+        :return: Inverted copy of the board
+        """
+        new_board = GameBoard()
+        for row in range(self.playable_row_range[0], self.playable_row_range[1]):
+            for col in range(self.playable_column_range[0], self.playable_column_range[1]):
+                if not self.board[row][col] == " ":
+                    new_board.board[row][col] = symbol1 if self.board[row][col] == symbol2 else symbol2
+        return new_board.board
+
 
     def place(self, symbol, col):
         """
         Places a game piece onto the board, or finds that the requested column is already full.
-        :param symbol: The player's game piece (X or O)
+        :param symbol: The player's game piece character
         :param col: The requested column the AI wants to drop their piece into
         :return: Boolean stating whether the move was legal (True) or the column was full (False)
         """
         col += self.array_offset - 1
+        self.board_empty = False
 
         for row in range(self.playable_row_range[1] - 1, self.playable_row_range[0] - 1, -1):
             if self.board[row][col] == " ":
